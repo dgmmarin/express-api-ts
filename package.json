@@ -1,0 +1,42 @@
+{
+  "name": "express-api-ts",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "build": "tsc",
+    "serve": "node dist/index.js",
+    "typeorm": "typeorm-ts-node-commonjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dgmmarin/express-api-ts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dgmmarin/express-api-ts/issues"
+  },
+  "homepage": "https://github.com/dgmmarin/express-api-ts#readme",
+  "devDependencies": {
+    "@types/cors": "^2.8.15",
+    "@types/express": "^4.17.20",
+    "@types/node": "^20.8.10",
+    "express": "^4.18.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@types/express-validator": "^3.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express-validator": "^7.0.1",
+    "mysql": "^2.18.1",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.3.17",
+    "ts-node": "10.7.0",
+    "@types/node": "^16.11.10",
+    "typescript": "4.5.2"
+  }
+}
