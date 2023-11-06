@@ -12,7 +12,6 @@ exports.AppDataSource = new typeorm_1.DataSource({
     database: process.env.DB_DATABASE || "test",
     synchronize: true,
     logging: false,
-    // entities: [User],
     entities: ["entity/*.{.ts,.js}"],
     migrations: [],
     subscribers: [],
