@@ -1,3 +1,5 @@
+import { NextFunction, Request, Response } from "express";
+
 function first() {
     console.log("first(): factory evaluated");
     return function () {
@@ -6,20 +8,23 @@ function first() {
 }
 
 export function test() {
-    return (
+    return function (
         target: any,
-        propertyKey: any,
+        propertyKey: string,
         descriptor: PropertyDescriptor,
-    ):any => {
-        descriptor.value = (...args: any[]):any => {
-            const value = descriptor.value;
-            const out = value.apply(args);
+    ) {
+        const value = descriptor.value;
+        descriptor.value = function (req:Request,res:Response, next:NextFunction) {
+            console.log(11111);
+            console.log(req.headers);
+            const out = value.apply(this, [req, res, next]);
+            console.log(222222);
             return out;
         }
     };
 }
 
-export const log = (target: any | undefined, propertyKey: string, descriptor: PropertyDescriptor):any => {
+export const log = (target: any | undefined, propertyKey: string, descriptor: PropertyDescriptor): any => {
     // Capture the functional behavior of the decorated method
     const originalMethod = descriptor.value;
     // Override the decorated method's behavior with new behavior

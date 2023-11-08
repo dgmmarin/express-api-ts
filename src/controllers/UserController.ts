@@ -8,8 +8,17 @@ import { validationResult } from 'express-validator';
 import { log, test } from '../auth/decorators';
 
 
+function sealed(constructor: Function) {
+    Object.seal(constructor);
+    Object.seal(constructor.prototype);
+}
 
+@sealed
 class UserController {
+    name: string;
+    constructor() {
+        this.name = "UserController";
+    }
     createUser = async (req: Request, res: Response) => {
         try {
             const vr = validationResult(req);
@@ -48,8 +57,9 @@ class UserController {
 
     }
 
-    listUsers = (req: Request, res: Response) => {
-
+    @test()
+    listUsers(req: Request, res: Response){
+        res.json({ message: "Hello World" });
     };
 
     getUserByEmail = async (email: string): Promise<User | null> => {
