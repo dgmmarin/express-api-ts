@@ -1,7 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, UpdateDateColumn, ManyToMany, JoinTable, Generated, BeforeUpdate, BeforeInsert, AfterUpdate } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, UpdateDateColumn, ManyToMany, JoinTable, Generated, BeforeUpdate, BeforeInsert, AfterUpdate, OneToMany } from "typeorm"
 import { Role } from "./Role"
 import { v4 } from 'uuid';
 import GenericEntity from "./GenericEntity"
+import { Order } from "./Order";
 
 @Entity("users")
 export class User extends GenericEntity{
@@ -40,6 +41,9 @@ export class User extends GenericEntity{
             inverseJoinColumn: { name: "roleId", referencedColumnName: "id" }
         })
     roles: Role[]
+
+    @OneToMany(() => Order, order => order.user)
+    orders: Order[]
 
     @BeforeInsert()
     addUuid() {
