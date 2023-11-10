@@ -1,7 +1,7 @@
 import "reflect-metadata"
 import { DataSource } from "typeorm"
 import path from "path"
-
+console.log(process.env.DB_LOGGING)
 export const AppDataSource = new DataSource({
     type: "mysql", 
     host: process.env.DB_HOST || "localhost",
@@ -9,8 +9,8 @@ export const AppDataSource = new DataSource({
     username: process.env.DB_USERNAME || "test",
     password: process.env.DB_PASSWORD || "test",
     database: process.env.DB_DATABASE || "test",
-    synchronize: process.env.DB_SYNC ? process.env.DB_SYNC === "true" : true,
-    logging: false,
+    synchronize: process.env.DB_SYNC == "true" ? true : false,
+    logging: process.env.DB_LOGGING == "true" ? true : false,
     entities: [path.join(__dirname, "database/entities", "*.ts")],
     migrations: [path.join(__dirname, "database/migrations", "*.ts")],
     subscribers: [],

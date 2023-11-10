@@ -15,12 +15,10 @@ export function test() {
     ) {
         const value = descriptor.value;
         descriptor.value = function (req:Request,res:Response, next:NextFunction) {
-            console.log(11111);
-            console.log(req.headers);
             const out = value.apply(this, [req, res, next]);
-            console.log(222222);
             return out;
         }
+        return descriptor;
     };
 }
 

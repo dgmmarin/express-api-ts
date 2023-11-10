@@ -1,36 +1,43 @@
-import { Process } from "../../interfaces/process";
+import { Process, Services } from "../../interfaces/process";
 import { Service } from "../../interfaces/service";
 import Api from "../services/api";
+import Database from "../services/database";
+import Queue from "../services/queue";
 
 export default class Main implements Process {
     name: string;
-    services: Service[];
+    services: {[key: string]: Service};
     constructor() {
         this.name = "Main";
-        this.services = [];
+        this.services = <Services>{};
     }
     init(): void {
         console.log("Initializing Main Process");
         this.loadServices();
-        this.services.forEach(service => {
+        Object.keys(this.services).forEach(key => {
+            const service = this.services[key];
             service.init();
         });
     }
     
     start(): void {
-        this.services.forEach(service => {
+        Object.keys(this.services).forEach(key => {
+            const service = this.services[key];
             service.start();
         });
     }
 
     stop(): void {
-        this.services.forEach(service => {
-            service.stop();
+        Object.keys(this.services).forEach(key => {
+            const service = this.services[key];
+            service.start();
         });
     }
 
     loadServices(): void {
-        this.services.push(new Api());
+        this.services["database"] = new Database(this);
+        this.services["api"] = new Api(this);
+        this.services["queue"] = new Queue(this);
     }
 
 }

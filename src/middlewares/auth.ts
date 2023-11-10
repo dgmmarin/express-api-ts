@@ -1,8 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import AuthService from '../auth/Auth';
 import jwt, { JwtPayload, Secret } from 'jsonwebtoken';
+import { User } from '../database/entities/User';
+
 export interface CustomRequest extends Request {
     token: string | JwtPayload;
+    user: User;
 }
 
 const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
