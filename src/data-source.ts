@@ -1,7 +1,7 @@
 import "reflect-metadata"
 import { DataSource } from "typeorm"
 import path from "path"
-console.log(process.env.DB_LOGGING)
+
 export const AppDataSource = new DataSource({
     type: "mysql", 
     host: process.env.DB_HOST || "localhost",

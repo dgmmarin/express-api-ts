@@ -15,4 +15,11 @@ const userCreateValidations = [
         .notEmpty().withMessage('password is required')
         .isLength({ min: 6, max: 10 }).withMessage('Password must be between 6 and 10 characters long'),
 ];
+
+const userUpdateValidations = [
+    body('firstName')
+    .optional()
+    .isLength({ min: 3, max: 20 }).withMessage('firstName must be between 3 and 20 characters long'),
+];
 export default userCreateValidations;
+export { userUpdateValidations };

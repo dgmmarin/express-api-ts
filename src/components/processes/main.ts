@@ -2,6 +2,7 @@ import { Process, Services } from "../../interfaces/process";
 import { Service } from "../../interfaces/service";
 import Api from "../services/api";
 import Database from "../services/database";
+import QueueWorker from "../services/queue";
 import Queue from "../services/queue";
 
 export default class Main implements Process {
@@ -37,7 +38,7 @@ export default class Main implements Process {
     loadServices(): void {
         this.services["database"] = new Database(this);
         this.services["api"] = new Api(this);
-        this.services["queue"] = new Queue(this);
+        this.services["queue"] = new QueueWorker(this);
     }
 
 }

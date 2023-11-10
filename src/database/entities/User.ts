@@ -1,14 +1,15 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, UpdateDateColumn, ManyToMany, JoinTable } from "typeorm"
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, DeleteDateColumn, UpdateDateColumn, ManyToMany, JoinTable, Generated, BeforeUpdate, BeforeInsert, AfterUpdate } from "typeorm"
 import { Role } from "./Role"
-import { UUID } from "typeorm/driver/mongodb/bson.typings"
+import { v4 } from 'uuid';
+import GenericEntity from "./GenericEntity"
 
 @Entity("users")
-export class User {
+export class User extends GenericEntity{
     @PrimaryGeneratedColumn()
     id: number
 
-    @PrimaryGeneratedColumn("uuid")
-    uuid: UUID
+    @Column("uuid")
+    uuid: string
 
     @Column({ length: 100, nullable: false })
     firstName: string
@@ -32,6 +33,16 @@ export class User {
     deletedAt: Date
 
     @ManyToMany(() => Role, role => role.users)
-    @JoinTable({name: "user_roles"})
+    @JoinTable(
+        {
+            name: "user_roles",
+            joinColumn: { name: "userId", referencedColumnName: "id" },
+            inverseJoinColumn: { name: "roleId", referencedColumnName: "id" }
+        })
     roles: Role[]
+
+    @BeforeInsert()
+    addUuid() {
+        this.uuid = v4()
+    }
 }

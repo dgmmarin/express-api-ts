@@ -1,10 +1,15 @@
-import { Column, CreateDateColumn, Entity, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, Column, CreateDateColumn, Entity, Generated, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Role } from "./Role";
+import { UUID } from "crypto";
+import { v4 } from "uuid";
 
 @Entity("permissions")  
 export class Permission {
     @PrimaryGeneratedColumn()
     id: number;
+
+    @Column("uuid")
+    uuid: string
     
     @Column()
     name: string;
@@ -20,4 +25,9 @@ export class Permission {
 
     @ManyToMany(() => Role, role => role.permissions)
     roles: Permission[];
+
+    @BeforeInsert()
+    addUuid() {
+        this.uuid = v4()
+    }
 }

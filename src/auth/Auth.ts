@@ -18,7 +18,7 @@ export default class AuthService {
     }
 
     static generateAccessToken = (user: User): string => {
-        return jwt.sign({ email: user.email, role: user.roles }, this.jwtSecret, { expiresIn: process.env.NODE_JWT_EXPIRES });
+        return jwt.sign({ email: user.email, role: user.roles }, this.jwtSecret, { expiresIn: '1h' });
     }
 
     static verifyToken = (token: string): any => {

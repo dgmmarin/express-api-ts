@@ -4,6 +4,8 @@ import cors from 'cors';
 import task from "../../routes/task";
 import users from "../../routes/users";
 import auth from "../../routes/auth";
+import authenticateJWT from "../../middlewares/auth";
+import getRequestedUser from "../../middlewares/getUserOnRequest";
 import { Process } from "../../interfaces/process";
 
 export default class Api implements Service {
@@ -17,19 +19,18 @@ export default class Api implements Service {
     }
 
     init(): void {
-        console.log(`Initializing ${this.name} service`);
         this.port = process.env.NODE_PORT ? Number(process.env.NODE_PORT) : 3000;
         this.app = express();
         this.app.use(express.json());
         this.app.use(express.urlencoded({ extended: true }));
         this.app.use(cors())
         this.registerRoutes();
+        console.log(`Initializing ${this.name} service`);
     }
 
     start(): void {
         this.app.listen(this.port, () => {
-            console.log(`Service ${this.name} started`);
-            console.log(`Api listening at http://localhost:${this.port}`)
+            console.log(`Service ${this.name} at http://localhost:${this.port}`);
         });
     }
 
@@ -39,9 +40,7 @@ export default class Api implements Service {
 
     registerRoutes(): void {
         this.app.use('/auth', auth)
-        this.app.use('/tasks', task);
-        this.app.use('/users', users);
-
+        this.app.use('/users',authenticateJWT, users);
         this.app.use((err: Error, req: Request, res: Response, next: NextFunction): any => {
             console.error(err.stack);
             res.status(500).send('Something went wrong');
