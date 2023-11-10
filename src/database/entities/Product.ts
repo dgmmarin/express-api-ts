@@ -30,8 +30,8 @@ export default class Product {
     @ManyToMany(() => Category, category => category.products)
     @JoinTable({
         name: "product_categories",
-        joinColumn: { name: "productId", referencedColumnName: "id" },
-        inverseJoinColumn: { name: "categoryId", referencedColumnName: "id" }
+        joinColumn: { name: "product_id", referencedColumnName: "id" },
+        inverseJoinColumn: { name: "category_id", referencedColumnName: "id" }
     })
     category: Category[]
 
