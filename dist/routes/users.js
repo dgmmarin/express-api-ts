@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var express_1 = require("express");
+var UserController_1 = __importDefault(require("../controllers/UserController"));
+var user_1 = require("../validators/user");
+var router = (0, express_1.Router)();
+var controller = new UserController_1.default();
+router.get('/:userId', controller.getUser);
+router.get('/', controller.listUsers);
+router.get('/:userId', controller.getUser);
+router.post('/', user_1.validateUserCreate, controller.createUser);
+router.put('/:userId', user_1.validateUserUpdate, controller.updateUser);
+router.delete('/:userId', controller.deleteUser);
+router.post('/:userId/roles/:roleId', controller.addRole);
+router.delete('/:userId/roles/:roleId', controller.removeRole);
+router.get('/:userId/orders', controller.listOrders);
+exports.default = router;

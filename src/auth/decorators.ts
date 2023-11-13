@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from "express";
+import { CustomRequest } from "../middlewares/auth";
 
 function first() {
     console.log("first(): factory evaluated");
@@ -7,19 +8,52 @@ function first() {
     };
 }
 
-export function test() {
+export function Roles(roles: string[]) {
     return function (
         target: any,
         propertyKey: string,
         descriptor: PropertyDescriptor,
     ) {
         const value = descriptor.value;
-        descriptor.value = function (req:Request,res:Response, next:NextFunction) {
-            const out = value.apply(this, [req, res, next]);
-            return out;
+        descriptor.value = function (req: Request, res: Response, next: NextFunction) {
+            const _roles = (req as CustomRequest).roles;
+            let hasRole = false;
+            if (_roles && _roles.length && _roles.some(r => roles.includes(r))) {
+                hasRole = true;
+            }
+            if (!hasRole) {
+                return res.status(403).json({ message: "Unauthorized action" });
+            }else{
+                const out = value.apply(this, [req, res, next]);
+                return out;
+            }
         }
         return descriptor;
     };
+}
+
+export function HasRole(role: string){
+    return function (
+        target: any,
+        propertyKey: string,
+        descriptor: PropertyDescriptor,
+    ){
+        const value = descriptor.value;
+        descriptor.value = function (req: Request, res: Response, next: NextFunction) {
+            const _roles = (req as CustomRequest).roles;
+            let hasRole = false;
+            if (_roles && _roles.length && _roles.map(r => r === role)) {
+                hasRole = true;
+            }
+
+            if (!hasRole) {
+                return res.status(403).json({ message: `Unauthorized action. The role required for this action is => ${role}` });
+            }else{
+                const out = value.apply(this, [req, res, next]);
+                return out;
+            }
+        }
+    }
 }
 
 export const log = (target: any | undefined, propertyKey: string, descriptor: PropertyDescriptor): any => {

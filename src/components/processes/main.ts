@@ -3,7 +3,6 @@ import { Service } from "../../interfaces/service";
 import Api from "../services/api";
 import Database from "../services/database";
 import QueueWorker from "../services/queue";
-import Queue from "../services/queue";
 
 export default class Main implements Process {
     name: string;

@@ -1,7 +1,7 @@
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import { User } from '../database/entities/User';
-import jwt, { Secret} from 'jsonwebtoken';
+import jwt, { Secret } from 'jsonwebtoken';
 dotenv.config();
 
 export default class AuthService {
@@ -18,7 +18,13 @@ export default class AuthService {
     }
 
     static generateAccessToken = (user: User): string => {
-        return jwt.sign({ email: user.email, role: user.roles }, this.jwtSecret, { expiresIn: '1h' });
+        return jwt.sign({
+            email: user.email,
+            roles: user.roles.map(role => role.name)
+        },
+            this.jwtSecret,
+            { expiresIn: '1h' }
+        );
     }
 
     static verifyToken = (token: string): any => {

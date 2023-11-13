@@ -6,11 +6,20 @@ import { CustomRequest } from "./auth";
 
 const getRequestedUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        if (req.params.userId != undefined) {
-            const userRepository = AppDataSource.getRepository(User);
-            const user = await userRepository.findOneByOrFail({ id: Number(req.params.userId) });
-            (req as CustomRequest)['user'] = user;
+        let email = (req as CustomRequest)['email'];
+        const userRepository = AppDataSource.getRepository(User);
+        const user = await userRepository.findOneOrFail({where:{ email: email }});
+        (req as CustomRequest)['user'] = user;
+        const roles = (req as CustomRequest)['roles'];
+
+        if (req.params.userId != undefined){
+            if (user.id != Number(req.params.userId)){
+                if (roles.length > 0 && roles.indexOf('admin') == -1){
+                    return res.status(401).json({ message: "Unauthorized" });
+                }
+            }
         }
+        
         next();
     } catch (error) {
         res.status(400).json({ message: "User not found" });

@@ -5,6 +5,10 @@ import { User } from '../database/entities/User';
 
 export interface CustomRequest extends Request {
     token: string | JwtPayload;
+    email: string;
+    exp: number;
+    iat: number;
+    roles: string[];
     user: User;
 }
 
@@ -28,6 +32,10 @@ const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
     
             const decoded = jwt.verify(token, SECRET_KEY);
             (req as CustomRequest).token = decoded;
+            (req as CustomRequest).email = (decoded as JwtPayload).email;
+            (req as CustomRequest).exp = (decoded as JwtPayload).exp as number;
+            (req as CustomRequest).iat = (decoded as JwtPayload).iat as number;
+            (req as CustomRequest).roles = (decoded as JwtPayload).roles as string[];
             next();
         } else {
             res.sendStatus(401);

@@ -10,8 +10,12 @@ export default class Database implements Service {
         this.parent = parent;
     }
     async init(): Promise<void> {
-        console.log(`Initializing ${this.name} service`);
-        await AppDataSource.initialize();
+        try {
+            console.log(`Initializing ${this.name} service`);
+            await AppDataSource.initialize();
+        } catch (error) {
+            throw new Error(JSON.stringify(error));
+        }
     }
     start(): void {
         console.log(`Service ${this.name} started`)

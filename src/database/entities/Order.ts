@@ -1,6 +1,7 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { OrderProducts } from "./OrderProducts";
 import { User } from "./User";
+import { v4 } from "uuid";
 
 @Entity("orders")
 export class Order {
@@ -17,7 +18,13 @@ export class Order {
     description: string
 
     @Column({ length: 100, nullable: false })
+    "type":string
+
+    @Column({ length: 100, nullable: false })
     status: string
+
+    @Column({ length: 100, nullable: false })
+    desc: string
 
     @CreateDateColumn()
     createdAt: Date
@@ -32,6 +39,10 @@ export class Order {
     orderProducts: OrderProducts[];
 
     @ManyToOne(() => User, (user) => user.orders)
-    @JoinColumn({ name: 'user_id' })
     user: User;
+
+    @BeforeInsert()
+    addUuid() {
+        this.uuid = v4()
+    }
 }

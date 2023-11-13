@@ -7,6 +7,11 @@ import auth from "../../routes/auth";
 import authenticateJWT from "../../middlewares/auth";
 import getRequestedUser from "../../middlewares/getUserOnRequest";
 import { Process } from "../../interfaces/process";
+import roles from "../../routes/roles";
+import permissions from "../../routes/permissions";
+import categories from "../../routes/categories";
+import products from "../../routes/products";
+import orders from "../../routes/orders";
 
 export default class Api implements Service {
     name: string;
@@ -39,8 +44,13 @@ export default class Api implements Service {
     }
 
     registerRoutes(): void {
-        this.app.use('/auth', auth)
-        this.app.use('/users',authenticateJWT, users);
+        this.app.use('/auth', auth);
+        this.app.use('/users', authenticateJWT, getRequestedUser, users);
+        this.app.use('/roles', authenticateJWT, getRequestedUser, roles);
+        this.app.use('/permissions', authenticateJWT, getRequestedUser, permissions);
+        this.app.use('/categories', authenticateJWT, getRequestedUser, categories);
+        this.app.use('/products', authenticateJWT, getRequestedUser, products);
+        this.app.use('/orders', authenticateJWT, getRequestedUser, orders);
         this.app.use((err: Error, req: Request, res: Response, next: NextFunction): any => {
             console.error(err.stack);
             res.status(500).send('Something went wrong');

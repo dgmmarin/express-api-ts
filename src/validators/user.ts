@@ -1,4 +1,5 @@
-import { body } from 'express-validator';
+import { NextFunction, Response, Request } from 'express';
+import { body, validationResult } from 'express-validator';
 
 const userCreateValidations = [
     body('firstName')
@@ -20,6 +21,31 @@ const userUpdateValidations = [
     body('firstName')
     .optional()
     .isLength({ min: 3, max: 20 }).withMessage('firstName must be between 3 and 20 characters long'),
+    body('lastName')
+    .optional()
+    .isLength({ min: 3, max: 20 }).withMessage('lastName must be between 3 and 20 characters long'),
+    body('email')
+    .optional()
+    .isEmail().withMessage('email must be a valid email address'),
 ];
-export default userCreateValidations;
-export { userUpdateValidations };
+
+
+const validateUserCreate = async (req: Request, res: Response, next: NextFunction) => {
+    await Promise.all(userCreateValidations.map(validation => validation.run(req)));
+    const vr = validationResult(req);
+    if (!vr.isEmpty()) {
+        return res.status(400).json({ errors: vr.array() });
+    }
+    next();
+}
+
+const validateUserUpdate = async (req: Request, res: Response, next: NextFunction) => {
+    await Promise.all(userUpdateValidations.map(validation => validation.run(req)));
+    const vr = validationResult(req);
+    if (!vr.isEmpty()) {
+        return res.status(400).json({ errors: vr.array() });
+    }
+    next();
+}
+
+export { validateUserCreate, validateUserUpdate };
