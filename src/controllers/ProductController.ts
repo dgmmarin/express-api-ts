@@ -1,63 +1,47 @@
-import { Request, Response } from 'express';
-import { AppDataSource } from '../data-source';
-import Product from '../database/entities/Product';
+import { AppDataSource } from "../data-source";
+import Product from "../database/entities/Product";
+import { CreateProductDto, UpdateProductDto } from "../dto/product.dto";
+import { UpdateResult } from "typeorm";
 export default class ProductController {
-    listProducts = async (req: Request, res: Response) => {
-        try {
-            const productRepository = AppDataSource.getRepository(Product);
-            const products = await productRepository.find();
-            res.json(products);
-        } catch (error) {
-            res.status(400).json({ message: error });
-        }
-    }
+  listProducts = async (): Promise<Product[]> => {
+    const productRepository = AppDataSource.getRepository(Product);
+    return await productRepository.find();
+  };
 
-    createProduct = async (req: Request, res: Response) => {
-        try {
-            const { name, description } = req.body;
-            const product = new Product();
-            product.name = name;
-            product.description = description;
-            const result = await AppDataSource.manager.save(product);
-            res.json(result);
-        } catch (error) {
-            console.log(error);
-            res.status(400).json({ message: error });
-        }
-    }
+  createProduct = async (
+    createProductDto: CreateProductDto,
+  ): Promise<Product> => {
+    const product = new Product();
+    product.name = createProductDto.name;
+    product.description = createProductDto.description;
+    return await AppDataSource.manager.save(product);
+  };
 
-    getProduct = async (req: Request, res: Response) => {
-        try {
-            const productRepository = AppDataSource.getRepository(Product);
-            const product = await productRepository.findOneByOrFail({ id: Number(req.params.productId) });
-            res.json(product);
-        } catch (error) {
-            res.status(400).json({ message: "Product not found" });
-        }
-    }
+  getProduct = async (productId: number): Promise<Product> => {
+    const productRepository = AppDataSource.getRepository(Product);
+    return await productRepository.findOneByOrFail({
+      id: productId,
+    });
+  };
 
-    updateProduct = async (req: Request, res: Response) => {
-        try {
-            const productRepository = AppDataSource.getRepository(Product);
-            const product = await productRepository.findOneByOrFail({ id: Number(req.params.productId) });
-            const { name, description } = req.body;
-            product.name = name ?? product.name;
-            product.description = description ?? product.description;
-            const result = await productRepository.save(product);
-            res.json(result);
-        } catch (error) {
-            res.status(400).json({ message: "Product not found" });
-        }
-    }
+  updateProduct = async (
+    productId: number,
+    updateProductDto: UpdateProductDto,
+  ): Promise<Product> => {
+    const productRepository = AppDataSource.getRepository(Product);
+    const product = await productRepository.findOneByOrFail({
+      id: productId,
+    });
+    product.name = updateProductDto.name ?? product.name;
+    product.description = updateProductDto.description ?? product.description;
+    return await productRepository.save(product);
+  };
 
-    deleteProduct = async (req: Request, res: Response) => {
-        try {
-            const productRepository = AppDataSource.getRepository(Product);
-            const product = await productRepository.findOneByOrFail({ id: Number(req.params.productId) });
-            await productRepository.softDelete({ id: Number(product.id) });
-            res.json({ message: "Product deleted successfully" });
-        } catch (error) {
-            res.status(400).json({ message: "Product not found" });
-        }
-    }
+  deleteProduct = async (productId: number): Promise<UpdateResult> => {
+    const productRepository = AppDataSource.getRepository(Product);
+    const product = await productRepository.findOneByOrFail({
+      id: productId,
+    });
+    return await productRepository.softDelete({ id: Number(product.id) });
+  };
 }

@@ -1,13 +1,12 @@
 import { Router } from "express";
-import authenticateJWT from "../middlewares/auth";
-import PermissionController from "../controllers/PermissionController";
+import { PermissionHandler } from "../handlers/permissionHandler";
 
-const controller = new PermissionController();
+const handler = new PermissionHandler();
 const router = Router();
-router.get('/', controller.listPermissions);
-router.post('/', controller.createPermission);
-router.get('/:permissionId', controller.getPermission);
-router.put('/:permissionId', controller.updatePermission);
-router.delete('/:permissionId', controller.deletePermission);
+router.get("/", handler.listPermissions);
+router.post("/", handler.createPermission);
+router.get("/:permissionId", handler.getPermission);
+router.put("/:permissionId", handler.updatePermission);
+router.delete("/:permissionId", handler.deletePermission);
 
 export default router;

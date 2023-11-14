@@ -1,8 +1,8 @@
-import { AfterUpdate, BeforeInsert, BeforeUpdate } from "typeorm";
-import { uuid } from "uuidv4";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 export default class GenericEntity {
-    updatedDate: Date;
-    initialData: any;
-    updatedData: any;
+  updatedDate: Date;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  initialData: any;
+  updatedData: any;
 }

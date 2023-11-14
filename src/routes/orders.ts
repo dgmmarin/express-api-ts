@@ -1,13 +1,14 @@
 import { Router } from "express";
-import OrderController from "../controllers/OrderController";
+import OrderHandler from "../handlers/orderHandler";
+import { validateCreateOrder, validateUpdateOrder } from "../validators/order";
 
-const controller = new OrderController();
+const handler = new OrderHandler();
 const router = Router();
 
-router.get('/', controller.listOrders);
-router.post('/', controller.createOrder);
-router.get('/:orderId', controller.getOrder);
-router.put('/:orderId', controller.updateOrder);
-router.delete('/:orderId', controller.deleteOrder);
+router.get("/", handler.listOrders);
+router.post("/", validateCreateOrder, handler.createOrder);
+router.get("/:orderId", handler.getOrder);
+router.put("/:orderId", validateUpdateOrder, handler.updateOrder);
+router.delete("/:orderId", handler.deleteOrder);
 
 export default router;

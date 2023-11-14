@@ -1,33 +1,40 @@
-import { BeforeInsert, Column, CreateDateColumn, Entity, Generated, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  BeforeInsert,
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { Role } from "./Role";
-import { UUID } from "crypto";
 import { v4 } from "uuid";
 
-@Entity("permissions")  
+@Entity("permissions")
 export class Permission {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column("uuid")
-    uuid: string
-    
-    @Column()
-    name: string;
-    
-    @Column()
-    description: string;
+  @Column("uuid")
+  uuid: string;
 
-    @CreateDateColumn()
-    createdAt: Date;
+  @Column()
+  name: string;
 
-    @UpdateDateColumn()
-    updatedAt: Date;
+  @Column()
+  description: string;
 
-    @ManyToMany(() => Role, role => role.permissions)
-    roles: Permission[];
+  @CreateDateColumn()
+  createdAt: Date;
 
-    @BeforeInsert()
-    addUuid() {
-        this.uuid = v4()
-    }
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @ManyToMany(() => Role, (role) => role.permissions)
+  roles: Permission[];
+
+  @BeforeInsert()
+  addUuid() {
+    this.uuid = v4();
+  }
 }

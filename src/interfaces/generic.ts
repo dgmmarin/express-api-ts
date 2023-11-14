@@ -1,3 +1,3 @@
-export const DefaultQueue = 'default';
-export const OrdersQueue = 'orders';
-export const EmailsQueue = 'emails';
+export const DefaultQueue = "default";
+export const OrdersQueue = "orders";
+export const EmailsQueue = "emails";

@@ -1,12 +1,11 @@
 import { Router } from "express";
-import ProductController from "../controllers/ProductController";
-import authenticateJWT from "../middlewares/auth";
+import { ProductHandler } from "../handlers/productHandler";
 
-const controller = new ProductController();
+const handler = new ProductHandler();
 const router = Router();
-router.get('/', controller.listProducts);
-router.post('/', controller.createProduct);
-router.get('/:productId', controller.getProduct);
-router.put('/:productId', controller.updateProduct);
-router.delete('/:productId', controller.deleteProduct);
+router.get("/", handler.listProducts);
+router.post("/", handler.createProduct);
+router.get("/:productId", handler.getProduct);
+router.put("/:productId", handler.updateProduct);
+router.delete("/:productId", handler.deleteProduct);
 export default router;

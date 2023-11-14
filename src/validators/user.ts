@@ -1,51 +1,46 @@
-import { NextFunction, Response, Request } from 'express';
-import { body, validationResult } from 'express-validator';
+import { validate } from "class-validator";
+import { NextFunction, Response, Request } from "express";
+import { CreateUserDto, UpdateUserDto } from "../dto/user.dto";
+import { CustomRequest } from "../middlewares/auth";
 
-const userCreateValidations = [
-    body('firstName')
-        .notEmpty().withMessage('firstName is required')
-        .isLength({ min: 3, max: 20 }).withMessage('firstName must be between 3 and 20 characters long'),
-    body('lastName')
-        .notEmpty().withMessage('lastName is required')
-        .isLength({ min: 3, max: 20 }).withMessage('lastName must be between 3 and 20 characters long'),
-    body('email')
-        .isEmail().withMessage('email must be a valid email address')
-        .notEmpty().withMessage('eescription is required'),
-    body('password')
-        .isAlphanumeric().withMessage('Password must be filled with alphanumeric characters')
-        .notEmpty().withMessage('password is required')
-        .isLength({ min: 6, max: 10 }).withMessage('Password must be between 6 and 10 characters long'),
-];
-
-const userUpdateValidations = [
-    body('firstName')
-    .optional()
-    .isLength({ min: 3, max: 20 }).withMessage('firstName must be between 3 and 20 characters long'),
-    body('lastName')
-    .optional()
-    .isLength({ min: 3, max: 20 }).withMessage('lastName must be between 3 and 20 characters long'),
-    body('email')
-    .optional()
-    .isEmail().withMessage('email must be a valid email address'),
-];
-
-
-const validateUserCreate = async (req: Request, res: Response, next: NextFunction) => {
-    await Promise.all(userCreateValidations.map(validation => validation.run(req)));
-    const vr = validationResult(req);
-    if (!vr.isEmpty()) {
-        return res.status(400).json({ errors: vr.array() });
+const validateUserCreate = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let createdUser: CreateUserDto = new CreateUserDto();
+    createdUser = Object.assign(createdUser, req.body);
+    const errs = await validate(createdUser);
+    if (errs.length > 0) {
+      return res.status(400).json({ errors: errs });
+    } else {
+      (req as CustomRequest)["createUserDto"] = createdUser;
+      next();
     }
-    next();
-}
+  } catch (error) {
+    return res.status(400).json({ errors: error });
+  }
+};
 
-const validateUserUpdate = async (req: Request, res: Response, next: NextFunction) => {
-    await Promise.all(userUpdateValidations.map(validation => validation.run(req)));
-    const vr = validationResult(req);
-    if (!vr.isEmpty()) {
-        return res.status(400).json({ errors: vr.array() });
+const validateUserUpdate = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    let updateUserDto = new UpdateUserDto();
+    updateUserDto = Object.assign(updateUserDto, req.body);
+    const errs = await validate(updateUserDto);
+    if (errs.length > 0) {
+      return res.status(400).json({ errors: errs });
+    } else {
+      (req as CustomRequest)["updateUserDto"] = updateUserDto;
+      next();
     }
-    next();
-}
+  } catch (error) {
+    return res.status(400).json({ errors: error });
+  }
+};
 
 export { validateUserCreate, validateUserUpdate };

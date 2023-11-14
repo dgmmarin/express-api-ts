@@ -1,13 +1,13 @@
 import { Service } from "./service";
 
 export interface Services {
-    [key: string]: Service;
+  [key: string]: Service;
 }
 
 export interface Process {
-    name: string;
-    services: Services;
-    init(): void;
-    start(): void;
-    stop(): void;
+  name: string;
+  services: Services;
+  init(): void;
+  start(): void;
+  stop(): void;
 }

@@ -1,13 +1,12 @@
 import { Router } from "express";
-import authenticateJWT from "../middlewares/auth";
-import RoleController from "../controllers/RoleController";
+import { RoleHandler } from "../handlers/roleHandler";
 
-const controller = new RoleController();
+const handler = new RoleHandler();
 const router = Router();
-router.get('/', controller.listRoles);
-router.post('/', controller.createRole);
-router.get('/:roleId', controller.getRole);
-router.put('/:roleId', controller.updateRole);
-router.delete('/:roleId', controller.deleteRole);
-router.post('/:roleId/permissions/:permissionId', controller.addPermission);
+router.get("/", handler.listRoles);
+router.post("/", handler.createRole);
+router.get("/:roleId", handler.getRole);
+router.put("/:roleId", handler.updateRole);
+router.delete("/:roleId", handler.deleteRole);
+router.post("/:roleId/permissions/:permissionId", handler.addPermission);
 export default router;

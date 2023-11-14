@@ -1,64 +1,44 @@
 import { AppDataSource } from "../data-source";
-import { Request, Response } from "express";
 import { Category } from "../database/entities/Category";
+import { CreateCategoryDto, UpdateCategoryDto } from "../dto/category.dto";
 
 export default class CategoryController {
-    listCategories = async (req: Request, res: Response) => {
-        try {
-            const categoryRepository = AppDataSource.getRepository(Category);
-            const categories = await categoryRepository.find();
-            res.json(categories);
-        } catch (error) {
-            res.status(400).json({ message: error });
-        }
-    }
+  listCategories = async (): Promise<Category[]> => {
+    const categoryRepository = AppDataSource.getRepository(Category);
+    return await categoryRepository.find();
+  };
 
-    createCategory = async (req: Request, res: Response) => {
-        try {
-            const { name, description } = req.body;
-            const category = new Category();
-            category.name = name;
-            category.description = description;
-            const result = await AppDataSource.manager.save(category);
-            res.json(result);
-        } catch (error) {
-            console.log(error);
-            res.status(400).json({ message: error });
-        }
-    }
+  createCategory = async (createCategoryDto: CreateCategoryDto) => {
+    const category = new Category();
+    category.name = createCategoryDto.name;
+    category.description = createCategoryDto.description;
+    return await AppDataSource.manager.save(category);
+  };
 
-    getCategory = async (req: Request, res: Response) => {
-        try {
-            const categoryRepository = AppDataSource.getRepository(Category);
-            const category = await categoryRepository.findOneByOrFail({ id: Number(req.params.categoryId) });
-            res.json(category);
-        } catch (error) {
-            res.status(400).json({ message: "Category not found" });
-        }
-    }
+  getCategory = async (categoryId: number) => {
+    const categoryRepository = AppDataSource.getRepository(Category);
+    return await categoryRepository.findOneByOrFail({ id: categoryId });
+  };
 
-    updateCategory = async (req: Request, res: Response) => {
-        try {
-            const categoryRepository = AppDataSource.getRepository(Category);
-            const category = await categoryRepository.findOneByOrFail({ id: Number(req.params.categoryId) });
-            const { name, description } = req.body;
-            category.name = name ?? category.name;
-            category.description = description ?? category.description;
-            const result = await categoryRepository.save(category);
-            res.json(result);
-        } catch (error) {
-            res.status(400).json({ message: "Category not found" });
-        }
-    }
+  updateCategory = async (
+    categoryId: number,
+    updateCategoryDto: UpdateCategoryDto,
+  ) => {
+    const categoryRepository = AppDataSource.getRepository(Category);
+    const category = await categoryRepository.findOneByOrFail({
+      id: categoryId,
+    });
+    category.name = updateCategoryDto.name ?? category.name;
+    category.description =
+      updateCategoryDto.description ?? category.description;
+    return await categoryRepository.save(category);
+  };
 
-    deleteCategory = async (req: Request, res: Response) => {
-        try {
-            const categoryRepository = AppDataSource.getRepository(Category);
-            const category = await categoryRepository.findOneByOrFail({ id: Number(req.params.categoryId) });
-            await categoryRepository.softDelete({ id: Number(category.id) });
-            res.json({ message: "Category deleted successfully" });
-        } catch (error) {
-            res.status(400).json({ message: "Category not found" });
-        }
-    }
+  deleteCategory = async (categoryId: number) => {
+    const categoryRepository = AppDataSource.getRepository(Category);
+    const category = await categoryRepository.findOneByOrFail({
+      id: categoryId,
+    });
+    return await categoryRepository.softDelete({ id: Number(category.id) });
+  };
 }

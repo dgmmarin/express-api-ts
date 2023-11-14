@@ -1,45 +1,55 @@
-import { UUID } from "crypto";
-import { BeforeInsert, Column, CreateDateColumn, DeleteDateColumn, Entity, Generated, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import {
+  BeforeInsert,
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from "typeorm";
 import { Category } from "./Category";
 import { v4 } from "uuid";
 import { OrderProducts } from "./OrderProducts";
 
 @Entity("products")
 export default class Product {
-    @PrimaryGeneratedColumn()
-    id: number
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column("uuid")
-    uuid: string
+  @Column("uuid")
+  uuid: string;
 
-    @Column({ length: 100, nullable: false })
-    name: string
+  @Column({ length: 100, nullable: false })
+  name: string;
 
-    @Column({ length: 255, nullable: false })
-    description: string
+  @Column({ length: 255, nullable: false })
+  description: string;
 
-    @CreateDateColumn()
-    createdAt: Date
+  @CreateDateColumn()
+  createdAt: Date;
 
-    @UpdateDateColumn()
-    updatedAt: Date
+  @UpdateDateColumn()
+  updatedAt: Date;
 
-    @DeleteDateColumn()
-    deletedAt: Date
+  @DeleteDateColumn()
+  deletedAt: Date;
 
-    @ManyToMany(() => Category, category => category.products)
-    @JoinTable({
-        name: "product_categories",
-        joinColumn: { name: "product_id", referencedColumnName: "id" },
-        inverseJoinColumn: { name: "category_id", referencedColumnName: "id" }
-    })
-    category: Category[]
+  @ManyToMany(() => Category, (category) => category.products)
+  @JoinTable({
+    name: "product_categories",
+    joinColumn: { name: "product_id", referencedColumnName: "id" },
+    inverseJoinColumn: { name: "category_id", referencedColumnName: "id" },
+  })
+  category: Category[];
 
-    @OneToMany(() => OrderProducts, (orderProduct) => orderProduct.product)
-    orderProducts: OrderProducts[];
+  @OneToMany(() => OrderProducts, (orderProduct) => orderProduct.product)
+  orderProducts: OrderProducts[];
 
-    @BeforeInsert()
-    addUuid() {
-        this.uuid = v4()
-    }
+  @BeforeInsert()
+  addUuid() {
+    this.uuid = v4();
+  }
 }
