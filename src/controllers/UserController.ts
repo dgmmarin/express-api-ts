@@ -129,7 +129,7 @@ class UserController {
       .andWhere("order.id = :orderId", { orderId: orderId })
       .getOneOrFail();
     return user.orders[0];
-  }
+  };
 }
 
 export default UserController;

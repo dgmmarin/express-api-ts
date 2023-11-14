@@ -52,7 +52,7 @@ export function Catch(name: any[]) {
       }
     };
     return descriptor;
-  }
+  };
 }
 
 export function Roles(roles: string[]) {

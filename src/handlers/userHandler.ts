@@ -132,7 +132,10 @@ export class UserHandler {
   @Catch(["QueryFailedError", "EntityNotFoundError"])
   async getOrder(req: Request, res: Response) {
     const { userId, orderId } = req.params;
-    const order = await this.controller.getOrder(Number(userId), Number(orderId));
+    const order = await this.controller.getOrder(
+      Number(userId),
+      Number(orderId),
+    );
     res.json(order);
   }
 }
