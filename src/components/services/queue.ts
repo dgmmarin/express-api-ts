@@ -26,6 +26,10 @@ export default class QueueWorker implements Service {
         this.parent = parent;
     }
 
+    getEmailsQueue = (): Queue => this.emailsQueue;
+    getOrdersQueue = (): Queue => this.ordersQueue;
+    getDefaultQueue = (): Queue => this.defaultQueue;
+
     init(): void {
         console.log(`Initializing ${this.name} service`);
         this.redisOptions = {

@@ -10,6 +10,14 @@ export class UserHandler {
     controller: UserController
     constructor() {
         this.controller = new UserController();
+        this.listUsers = this.listUsers.bind(this);
+        this.getUser = this.getUser.bind(this);
+        this.createUser = this.createUser.bind(this);
+        this.updateUser = this.updateUser.bind(this);
+        this.deleteUser = this.deleteUser.bind(this);
+        this.addRole = this.addRole.bind(this);
+        this.removeRole = this.removeRole.bind(this);
+        this.listOrders = this.listOrders.bind(this);
     }
 
     @Roles(['admin'])
@@ -88,18 +96,16 @@ export class UserHandler {
     }
 
     // @Roles(['admin'])
-    listUsers = async (req: Request, res: Response) =>{
+    async listUsers(req: Request, res: Response){
         try {
-            console.log(this.controller);
             let users = await this.controller.listUsers();
-            console.log(users);
             let usersForReturn = users.map((user) => plainToClass(SanitizedUser, user));
             res.json(usersForReturn);
         } catch (error) {
             console.log(error);
             res.status(400).json({ message: "Users not found" });
         }
-    };
+    }
 
     getUserByEmail = async (email: string): Promise<User | null> => {
         try {

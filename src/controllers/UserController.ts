@@ -1,20 +1,16 @@
-import { Request, Response } from 'express';
 import { User } from '../database/entities/User';
 import { AppDataSource } from '../data-source';
-import SanitizedUser from '../serializers/user';
-import { plainToClass } from 'class-transformer';
 import AuthService from '../auth/Auth';
-import { HasRole, Roles, log } from '../auth/decorators';
-import { CustomRequest } from '../middlewares/auth';
 import { Role } from '../database/entities/Role';
 import { Order } from '../database/entities/Order';
 import { Process } from '../interfaces/process';
 import QueueWorker from '../components/services/queue';
-import Main from '../components/processes/main';
 import {App} from '../index';
 
 class UserController {
     name: string;
+    app: Process;
+    queue: QueueWorker;
     constructor() {
         this.name = "UserController";
     }
@@ -30,7 +26,9 @@ class UserController {
         user.lastName = lastName;
         user.email = email;
         user.password = AuthService.hashPassword(password);
-        return await AppDataSource.manager.save(user);
+        let _user = await AppDataSource.manager.save(user);
+        await (App.services['queue'] as QueueWorker).getEmailsQueue().add('sendEmail', {"emailJob": "userAdded", "user":_user} )
+        return _user;
     }
 
     getUser = async (userId: number): Promise<User> => {
@@ -95,7 +93,7 @@ class UserController {
     }
 
     listUsers = async (): Promise<User[]> => {
-        console.log(App)
+        console.log("Listing users");
         let userRepository = AppDataSource.getRepository(User);
         return await userRepository.find();
     };

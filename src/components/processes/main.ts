@@ -11,6 +11,9 @@ export default class Main implements Process {
         this.name = "Main";
         this.services = <Services>{};
     }
+    static getInstance(){
+        return this;
+    }
     init(): void {
         console.log("Initializing Main Process");
         this.loadServices();
