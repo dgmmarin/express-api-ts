@@ -5,13 +5,15 @@ import { Role } from "../database/entities/Role";
 import { Order } from "../database/entities/Order";
 import { Process } from "../interfaces/process";
 import QueueWorker from "../components/services/queue";
-import { App } from "../index";
+// import { App } from "../index";
 import { CreateUserDto, UpdateUserDto } from "../dto/user.dto";
+import { UpdateResult } from "typeorm";
 
-class UserController {
+export default class UserController {
   name: string;
   app: Process;
   queue: QueueWorker;
+
   constructor() {
     this.name = "UserController";
   }
@@ -23,9 +25,9 @@ class UserController {
     user.email = usr.email;
     user.password = AuthService.hashPassword(usr.password);
     const _user = await AppDataSource.manager.save(user);
-    await (App.services["queue"] as QueueWorker)
-      .getEmailsQueue()
-      .add("sendEmail", { emailJob: "userAdded", user: _user });
+    // await (App.services["queue"] as QueueWorker)
+    //   .getEmailsQueue()
+    //   .add("sendEmail", { emailJob: "userAdded", user: _user });
     return _user;
   };
 
@@ -86,14 +88,13 @@ class UserController {
     return await userRepository.save(user);
   };
 
-  deleteUser = async (userId: number): Promise<void> => {
+  deleteUser = async (userId: number): Promise<UpdateResult> => {
     const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOneOrFail({ where: { id: userId } });
-    await userRepository.softDelete({ id: user.id });
+    return await userRepository.softDelete({ id: user.id });
   };
 
   listUsers = async (): Promise<User[]> => {
-    console.log("Listing users");
     const userRepository = AppDataSource.getRepository(User);
     return await userRepository.find();
   };
@@ -132,4 +133,4 @@ class UserController {
   };
 }
 
-export default UserController;
+

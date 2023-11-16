@@ -27,6 +27,10 @@ export default class Api implements Service {
     this.registerRoutes = this.registerRoutes.bind(this);
   }
 
+  get App(): ReturnType<typeof express> {
+    return this.app;
+  }
+
   init(): void {
     this.port = process.env.NODE_PORT ? Number(process.env.NODE_PORT) : 3000;
     this.app = express();
@@ -40,6 +44,12 @@ export default class Api implements Service {
   start(): void {
     this.app.listen(this.port, () => {
       console.log(`Service ${this.name} at http://localhost:${this.port}`);
+    });
+  }
+
+  startTest(): void {
+    this.app.listen(3000, () => {
+      console.log(`Service ${this.name} at http://localhost:3000`);
     });
   }
 

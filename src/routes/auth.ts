@@ -13,13 +13,21 @@ router.post("/login", async (req: Request, res: Response) => {
       user.password,
     );
     if (validUSer) {
-      return res.json({ auth_token: authService.generateAccessToken(user) });
+      return res.json({
+        auth_token: authService.generateAccessToken(user),
+        email: user.email,
+        roles: user.roles.map((role) => role.name),
+      });
     } else {
       res.status(400).json({ message: "Invalid credentials" });
     }
   } else {
     res.status(400).json({ message: "Invalid credentials." });
   }
+});
+
+router.post("/logout", async (req: Request, res: Response) => {
+  return res.json({ success: true });
 });
 
 export default router;
