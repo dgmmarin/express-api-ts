@@ -30,4 +30,13 @@ router.post("/logout", async (req: Request, res: Response) => {
   return res.json({ success: true });
 });
 
+router.post("/register", async (req: Request, res: Response) => {
+  const user = await controller.getUserByEmail(req.body.email);
+  if (user) {
+    return res.status(400).json({ message: "User already exists" });
+  }
+  const newUser = await controller.createUser(req.body);
+  return res.json(newUser);
+})
+
 export default router;

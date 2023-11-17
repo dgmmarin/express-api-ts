@@ -96,7 +96,7 @@ export default class UserController {
 
   listUsers = async (): Promise<User[]> => {
     const userRepository = AppDataSource.getRepository(User);
-    return await userRepository.find();
+    return await userRepository.find({ relations: ["roles"] });
   };
 
   getUserByEmail = async (email: string): Promise<User | null> => {
@@ -113,21 +113,21 @@ export default class UserController {
     }
   };
 
-  listOrders = async (userId: number): Promise<Order[]> => {
+  listOrders = async (userId: string): Promise<Order[]> => {
     const userRepository = AppDataSource.getRepository(User);
     return (
       await userRepository.findOneOrFail({
-        where: { id: Number(userId) },
+        where: { uuid: userId },
         relations: ["orders"],
       })
     ).orders;
   };
 
-  getOrder = async (userId: number, orderId: number): Promise<Order> => {
+  getOrder = async (userUuid: string, orderUuid: string): Promise<Order> => {
     const user = await AppDataSource.createQueryBuilder(User, "user")
       .leftJoinAndSelect("user.orders", "order")
-      .where("user.id = :userId", { userId: userId })
-      .andWhere("order.id = :orderId", { orderId: orderId })
+      .where("user.uuid = :uuid", { uuid: userUuid })
+      .andWhere("order. = :orderUuid", { orderUuid: orderUuid })
       .getOneOrFail();
     return user.orders[0];
   };

@@ -122,7 +122,7 @@ export class UserHandler {
   async listOrders(req: Request, res: Response) {
     try {
       const { userId } = req.params;
-      const orders = await this.controller.listOrders(Number(userId));
+      const orders = await this.controller.listOrders(userId);
       res.json(orders);
     } catch (error) {
       res.status(400).json({ message: error });
@@ -133,8 +133,8 @@ export class UserHandler {
   async getOrder(req: Request, res: Response) {
     const { userId, orderId } = req.params;
     const order = await this.controller.getOrder(
-      Number(userId),
-      Number(orderId),
+      userId,
+      orderId,
     );
     res.json(order);
   }

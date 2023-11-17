@@ -10,5 +10,4 @@ router.post("/", validateCreateOrder, handler.createOrder);
 router.get("/:orderId", handler.getOrder);
 router.put("/:orderId", validateUpdateOrder, handler.updateOrder);
 router.delete("/:orderId", handler.deleteOrder);
-
 export default router;

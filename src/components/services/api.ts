@@ -32,11 +32,17 @@ export default class Api implements Service {
   }
 
   init(): void {
-    this.port = process.env.NODE_PORT ? Number(process.env.NODE_PORT) : 3000;
+    // this.port = process.env.NODE_PORT ? Number(process.env.NODE_PORT) : 3000;
     this.app = express();
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
-    this.app.use(cors());
+    const corsOptions = {
+      "origin": "*",
+      "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+      "preflightContinue": false,
+      "optionsSuccessStatus": 204
+    }
+    this.app.use(cors(corsOptions));
     this.registerRoutes();
     console.log(`Initializing ${this.name} service`);
   }
