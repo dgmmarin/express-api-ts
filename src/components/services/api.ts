@@ -12,6 +12,7 @@ import permissions from "../../routes/permissions";
 import categories from "../../routes/categories";
 import products from "../../routes/products";
 import orders from "../../routes/orders";
+import { pagination } from 'typeorm-pagination'
 
 export default class Api implements Service {
   name: string;
@@ -32,7 +33,7 @@ export default class Api implements Service {
   }
 
   init(): void {
-    // this.port = process.env.NODE_PORT ? Number(process.env.NODE_PORT) : 3000;
+    this.port = process.env.NODE_PORT ? Number(process.env.NODE_PORT) : 3000;
     this.app = express();
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
@@ -43,6 +44,7 @@ export default class Api implements Service {
       "optionsSuccessStatus": 204
     }
     this.app.use(cors(corsOptions));
+    this.app.use(pagination);
     this.registerRoutes();
     console.log(`Initializing ${this.name} service`);
   }
