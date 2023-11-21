@@ -2,10 +2,25 @@ import { AppDataSource } from "../data-source";
 import Product from "../database/entities/Product";
 import { CreateProductDto, UpdateProductDto } from "../dto/product.dto";
 import { UpdateResult } from "typeorm";
+import { PaginationResponse } from "../interfaces/generic";
 export default class ProductController {
-  listProducts = async (): Promise<Product[]> => {
+  listProducts = async (offset: number, limit: number): Promise<PaginationResponse<Product>> => {
     const productRepository = AppDataSource.getRepository(Product);
-    return await productRepository.find();
+    const count = await productRepository.count();
+    const products = await productRepository.createQueryBuilder("product")
+      .offset(offset)
+      .limit(limit)
+      .getMany();
+    return <PaginationResponse<Product>>{
+      data: products,
+      meta: {
+        limit,
+        offset,
+        page: offset / limit,
+        total: count,
+        pages: Math.ceil(count / limit),
+      },
+    }
   };
 
   createProduct = async (

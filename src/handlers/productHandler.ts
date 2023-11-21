@@ -16,9 +16,11 @@ export class ProductHandler {
 
   async listProducts(req: Request, res: Response) {
     try {
-      const products = await this.controller.listProducts();
+      const { limit, offset } = (req as CustomRequest)["pagination"];
+      const products = await this.controller.listProducts(offset, limit);
       res.json(products);
     } catch (error) {
+      console.log(error);
       res.status(400).json({ message: error });
     }
   }

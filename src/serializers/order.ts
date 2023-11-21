@@ -1,22 +1,23 @@
 import { Exclude } from "class-transformer";
-import { User } from "../database/entities/User";
+import SanitizedUser from "./user";
 
-export default class SanitizedUser {
+export default class SanitizedOrder {
   @Exclude()
   id: number;
   uuid: string;
-  firstName: string;
-  lastName: string;
-  email: string;
+  description: string;
 
   @Exclude()
-  password: string;
+  userId: string;
+  status: string;
+  type: string;
   createdAt: Date;
   @Exclude()
   updatedAt: Date;
   @Exclude()
   deletedAt: Date;
-  constructor(partial: Partial<User>) {
+  user: SanitizedUser;
+  constructor(partial: Partial<SanitizedOrder>) {
     Object.assign(this, partial);
   }
 }

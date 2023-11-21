@@ -8,6 +8,11 @@ import QueueWorker from "../components/services/queue";
 // import { App } from "../index";
 import { CreateUserDto, UpdateUserDto } from "../dto/user.dto";
 import { UpdateResult } from "typeorm";
+import { PaginationResponse } from "../interfaces/generic";
+import SanitizedUser from "../serializers/user";
+import OrderController from "./OrderController";
+import { plainToClass } from "class-transformer";
+import SanitizedOrder from "../serializers/order";
 
 export default class UserController {
   name: string;
@@ -31,22 +36,21 @@ export default class UserController {
     return _user;
   };
 
-  getUser = async (userId: number): Promise<User> => {
+  getUser = async (userId: string): Promise<User> => {
     const userRepository = AppDataSource.getRepository(User);
     return await userRepository.findOneOrFail({
-      where: { id: userId },
-      relations: ["roles", "orders"],
+      where: { uuid: userId },
     });
   };
 
-  addRole = async (userId: number, roleId: number): Promise<User> => {
+  addRole = async (userId: string, roleId: string): Promise<User> => {
     const roleRepository = AppDataSource.getRepository(Role);
     const role = await roleRepository.findOneOrFail({
-      where: { id: roleId },
+      where: { uuid: roleId },
     });
     const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOneOrFail({
-      where: { id: userId },
+      where: { uuid: userId },
       relations: {
         roles: true,
       },
@@ -55,14 +59,14 @@ export default class UserController {
     return await userRepository.save(user);
   };
 
-  removeRole = async (userId: number, roleId: number): Promise<User> => {
+  removeRole = async (userId: string, roleId: string): Promise<User> => {
     const roleRepository = AppDataSource.getRepository(Role);
     const role = await roleRepository.findOneOrFail({
-      where: { id: roleId },
+      where: { uuid: roleId },
     });
     const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOneOrFail({
-      where: { id: userId },
+      where: { uuid: userId },
       relations: {
         roles: true,
       },
@@ -72,12 +76,12 @@ export default class UserController {
   };
 
   updateUser = async (
-    userId: number,
+    userId: string,
     updateUserDto: UpdateUserDto,
   ): Promise<User> => {
     const userRepository = AppDataSource.getRepository(User);
     const user = await userRepository.findOneOrFail({
-      where: { id: userId },
+      where: { uuid: userId },
       relations: {
         roles: true,
       },
@@ -88,15 +92,36 @@ export default class UserController {
     return await userRepository.save(user);
   };
 
-  deleteUser = async (userId: number): Promise<UpdateResult> => {
+  deleteUser = async (userId: string): Promise<UpdateResult> => {
     const userRepository = AppDataSource.getRepository(User);
-    const user = await userRepository.findOneOrFail({ where: { id: userId } });
+    const user = await userRepository.findOneOrFail({ where: { uuid: userId } });
     return await userRepository.softDelete({ id: user.id });
   };
 
-  listUsers = async (): Promise<User[]> => {
+  listUsers = async (offset: number, limit: number): Promise<PaginationResponse<SanitizedUser>> => {
     const userRepository = AppDataSource.getRepository(User);
-    return await userRepository.find({ relations: ["roles"] });
+    const count = await userRepository.count({ withDeleted: false });
+    const pages = Math.ceil(count / limit);
+    const users = await userRepository.createQueryBuilder("user")
+      .leftJoinAndSelect("user.roles", "role")
+      .limit(limit)
+      .offset(offset)
+      .orderBy("user.id", "DESC")
+      .getMany();
+    const usersForReturn = users.map((user) =>
+      new SanitizedUser(user),
+    );
+
+    return <PaginationResponse<SanitizedUser>>{
+      data: usersForReturn,
+      meta: {
+        limit: limit,
+        offset: offset,
+        page: Math.ceil(offset / limit) + 1,
+        total: count,
+        pages: pages,
+      },
+    };
   };
 
   getUserByEmail = async (email: string): Promise<User | null> => {
@@ -113,23 +138,28 @@ export default class UserController {
     }
   };
 
-  listOrders = async (userId: string): Promise<Order[]> => {
-    const userRepository = AppDataSource.getRepository(User);
-    return (
-      await userRepository.findOneOrFail({
-        where: { uuid: userId },
-        relations: ["orders"],
-      })
-    ).orders;
+  listOrders = async (userId: string, limit: number, offset: number): Promise<PaginationResponse<SanitizedOrder>> => {
+    const orderController = new OrderController();
+    const orders = await orderController.listOrders(offset, limit, userId);
+    const sanitizedOrders = orders.data.map((order) => {
+      const _order = plainToClass(SanitizedOrder, <Order>order)
+      _order.user = plainToClass(SanitizedUser, <User>order.user)
+      return _order
+    });
+    orders.data = sanitizedOrders;
+    return orders as PaginationResponse<SanitizedOrder>;
   };
 
-  getOrder = async (userUuid: string, orderUuid: string): Promise<Order> => {
-    const user = await AppDataSource.createQueryBuilder(User, "user")
-      .leftJoinAndSelect("user.orders", "order")
-      .where("user.uuid = :uuid", { uuid: userUuid })
-      .andWhere("order. = :orderUuid", { orderUuid: orderUuid })
+  getOrder = async (userUuid: string, orderUuid: string): Promise<SanitizedOrder> => {
+    const user = await AppDataSource.createQueryBuilder(User, "usr")
+      .leftJoinAndSelect("usr.orders", "order")
+      .leftJoinAndSelect("order.user", "user", "usr.uuid = :uuid", { uuid: userUuid })
+      .where("usr.uuid = :uuid", { uuid: userUuid })
+      .andWhere("order.uuid = :orderUuid", { orderUuid: orderUuid })
       .getOneOrFail();
-    return user.orders[0];
+    const order = plainToClass(SanitizedOrder, user.orders[0]);
+    order.user = plainToClass(SanitizedUser, order.user);
+    return order;
   };
 }
 

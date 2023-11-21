@@ -37,7 +37,7 @@ export class UserHandler {
   @Roles(["admin", "user"])
   async getUser(req: Request, res: Response) {
     try {
-      const user = await this.controller.getUser(Number(req.params.userId));
+      const user = await this.controller.getUser(req.params.userId);
       res.json(plainToClass(SanitizedUser, user, {}));
     } catch (error) {
       res.status(400).json({ message: error });
@@ -48,8 +48,8 @@ export class UserHandler {
   async addRole(req: Request, res: Response) {
     try {
       const user = this.controller.addRole(
-        Number(req.params.userId),
-        Number(req.params.roleId),
+        req.params.userId,
+        req.params.roleId,
       );
       return res.json(plainToClass(SanitizedUser, user, {}));
     } catch (error) {
@@ -62,8 +62,8 @@ export class UserHandler {
   async removeRole(req: Request, res: Response) {
     try {
       const user = this.controller.removeRole(
-        Number(req.params.userId),
-        Number(req.params.roleId),
+        req.params.userId,
+        req.params.roleId,
       );
       return res.json(plainToClass(SanitizedUser, user, {}));
     } catch (error) {
@@ -76,7 +76,7 @@ export class UserHandler {
   async updateUser(req: Request, res: Response) {
     try {
       const result = await this.controller.updateUser(
-        Number(req.params.userId),
+        req.params.userId,
         (req as CustomRequest)["updateUserDto"],
       );
       res.json(plainToClass(SanitizedUser, result));
@@ -89,7 +89,7 @@ export class UserHandler {
   @Roles(["admin"])
   async deleteUser(req: Request, res: Response) {
     try {
-      await this.controller.deleteUser(Number(req.params.userId));
+      await this.controller.deleteUser(req.params.userId);
       res.json({ message: "User deleted successfully" });
     } catch (error) {
       res.status(400).json({ message: "User not found" });
@@ -99,11 +99,9 @@ export class UserHandler {
   @Roles(["admin"])
   async listUsers(req: Request, res: Response) {
     try {
-      const users = await this.controller.listUsers();
-      const usersForReturn = users.map((user) =>
-        plainToClass(SanitizedUser, user),
-      );
-      res.json(usersForReturn);
+      const { offset, limit } = (req as CustomRequest)["pagination"];
+      const users = await this.controller.listUsers(offset, limit);
+      res.json(users);
     } catch (error) {
       console.log(error);
       res.status(400).json({ message: "Users not found" });
@@ -122,7 +120,8 @@ export class UserHandler {
   async listOrders(req: Request, res: Response) {
     try {
       const { userId } = req.params;
-      const orders = await this.controller.listOrders(userId);
+      const { offset, limit } = (req as CustomRequest)["pagination"];
+      const orders = await this.controller.listOrders(userId, limit, offset);
       res.json(orders);
     } catch (error) {
       res.status(400).json({ message: error });

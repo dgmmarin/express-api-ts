@@ -12,7 +12,7 @@ import permissions from "../../routes/permissions";
 import categories from "../../routes/categories";
 import products from "../../routes/products";
 import orders from "../../routes/orders";
-import { pagination } from 'typeorm-pagination'
+import pagniation from "../../middlewares/pagination";
 
 export default class Api implements Service {
   name: string;
@@ -44,7 +44,7 @@ export default class Api implements Service {
       "optionsSuccessStatus": 204
     }
     this.app.use(cors(corsOptions));
-    this.app.use(pagination);
+    this.app.use(pagniation);
     this.registerRoutes();
     console.log(`Initializing ${this.name} service`);
   }

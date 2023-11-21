@@ -1,6 +1,4 @@
 import OrderController from "../controllers/OrderController";
-import { AppDataSource } from "../data-source";
-import { Order } from "../database/entities/Order";
 import { Request, Response } from "express";
 import { CustomRequest } from "../middlewares/auth";
 
@@ -15,9 +13,10 @@ export default class OrderHandler {
     this.deleteOrder = this.deleteOrder.bind(this);
   }
   async listOrders(req: Request, res: Response) {
+    console.log("fetch orders");
     try {
-      const orderRepository = AppDataSource.getRepository(Order);
-      const orders = await orderRepository.find();
+      const { limit, offset } = (req as CustomRequest)["pagination"];
+      const orders = await this.controller.listOrders(offset, limit);
       res.json(orders);
     } catch (error) {
       res.status(400).json({ message: error });
