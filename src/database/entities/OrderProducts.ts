@@ -1,4 +1,5 @@
 import {
+  BeforeInsert,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
@@ -11,6 +12,7 @@ import {
 } from "typeorm";
 import { Order } from "./Order";
 import Product from "./Product";
+import { v4 } from "uuid";
 
 @Entity("order_products")
 export class OrderProducts {
@@ -29,7 +31,7 @@ export class OrderProducts {
   @Column({ nullable: false })
   quantity: number;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, default: 0 })
   price: number;
 
   @CreateDateColumn()
@@ -42,10 +44,15 @@ export class OrderProducts {
   deletedAt: Date;
 
   @ManyToOne(() => Order, (order) => order.orderProducts)
-  @JoinColumn({ name: "order_id" })
+  @JoinColumn({ name: "orderId" })
   order: Order;
 
   @ManyToOne(() => Product, (product) => product.orderProducts)
-  @JoinColumn({ name: "product_id" })
+  @JoinColumn({ name: "productId" })
   product: Product;
+
+  @BeforeInsert()
+  addUuid() {
+    this.uuid = v4();
+  }
 }

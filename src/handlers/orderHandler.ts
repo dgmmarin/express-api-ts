@@ -1,6 +1,8 @@
 import OrderController from "../controllers/OrderController";
 import { Request, Response } from "express";
 import { CustomRequest } from "../middlewares/auth";
+import { plainToClass } from "class-transformer";
+import SanitizedOrder from "../serializers/order";
 
 export default class OrderHandler {
   controller: OrderController;
@@ -11,6 +13,7 @@ export default class OrderHandler {
     this.getOrder = this.getOrder.bind(this);
     this.updateOrder = this.updateOrder.bind(this);
     this.deleteOrder = this.deleteOrder.bind(this);
+    this.addProductToOrder = this.addProductToOrder.bind(this);
   }
   async listOrders(req: Request, res: Response) {
     console.log("fetch orders");
@@ -37,8 +40,8 @@ export default class OrderHandler {
   async getOrder(req: Request, res: Response) {
     try {
       const { orderId } = req.params;
-      const order = await this.controller.getOrder(Number(orderId));
-      res.json(order);
+      const order = await this.controller.getOrder(orderId);
+      res.json(plainToClass(SanitizedOrder, order, {}));
     } catch (error) {
       res.status(400).json({ message: error });
     }
@@ -54,6 +57,21 @@ export default class OrderHandler {
       );
       res.json(result);
     } catch (error) {
+      res.status(400).json({ message: error });
+    }
+  }
+
+  async addProductToOrder(req: Request, res: Response) {
+    try {
+      const { orderId } = req.params;
+      const addProductToOrderDto = (req as CustomRequest)["addProduct"];
+      const result = await this.controller.addProductToOrder(
+        orderId,
+        addProductToOrderDto,
+      );
+      res.json(result);
+    } catch (error) {
+      console.log(error)
       res.status(400).json({ message: error });
     }
   }

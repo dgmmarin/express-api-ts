@@ -1,6 +1,9 @@
 import { AppDataSource } from "../data-source";
 import { Order } from "../database/entities/Order";
+import { OrderProducts } from "../database/entities/OrderProducts";
+import Product from "../database/entities/Product";
 import { CreateOrderDto, UpdateOrderDto } from "../dto/order.dto";
+import { AddProductToOrderDto } from "../dto/product.dto";
 import { PaginationResponse } from "../interfaces/generic";
 
 export default class OrderController {
@@ -17,7 +20,7 @@ export default class OrderController {
       meta: {
         limit,
         offset,
-        page: offset / limit,
+        page: Math.ceil(offset / limit) + 1,
         total: count,
         pages: Math.ceil(count / limit),
       },
@@ -33,10 +36,11 @@ export default class OrderController {
     return await AppDataSource.manager.save(order);
   };
 
-  getOrder = async (orderId: number) => {
+  getOrder = async (orderId: string) => {
     const orderRepository = AppDataSource.getRepository(Order);
-    return await orderRepository.findOneByOrFail({
-      id: orderId,
+    return await orderRepository.findOneOrFail({
+      where: { uuid: orderId },
+      relations: ["user", "orderProducts"],
     });
   };
 
@@ -52,5 +56,32 @@ export default class OrderController {
   deleteOrder = async (orderId: number) => {
     const orderRepository = AppDataSource.getRepository(Order);
     return await orderRepository.softDelete({ id: orderId });
+  };
+
+  addProductToOrder = async (orderId: string, addProduct: AddProductToOrderDto) => {
+    const orderRepository = AppDataSource.getRepository(Order);
+    let order = await orderRepository.findOneOrFail({
+      where: {
+        uuid: orderId,
+
+      }, relations: ["orderProducts"],
+    });
+
+    const product = await AppDataSource.getRepository(Product).findOneOrFail({
+      where: { uuid: addProduct.productId },
+    });
+    const orderProduct = new OrderProducts();
+    orderProduct.orderId = order.id;
+    orderProduct.productId = product.id;
+    orderProduct.quantity = addProduct.quantity;
+    orderProduct.price = addProduct.price;
+    // order.orderProducts.push(orderProduct);
+    await AppDataSource.manager.save(orderProduct);
+    order = await orderRepository.findOneOrFail({
+      where: {
+        uuid: orderId,
+      }, relations: ["orderProducts"],
+    });
+    return order;
   };
 }

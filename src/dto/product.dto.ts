@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, Length, IsOptional } from "class-validator";
+import { IsString, IsNotEmpty, Length, IsOptional, IsUUID, IsNumber, Min } from "class-validator";
 
 export class CreateProductDto {
   @IsString({ message: "name must be a string" })
@@ -26,4 +26,18 @@ export class UpdateProductDto {
     message: "description must be between 3 and 100 characters long",
   })
   description: string;
+}
+
+export class AddProductToOrderDto {
+  @IsUUID("4", { message: "productId must be a valid uuid" })
+  @IsNotEmpty({ message: "productId is required" })
+  productId: string;
+
+  @IsNumber({}, { message: "quantity must be a number" })
+  @Min(1, { message: "quantity must be greater than 0" })
+  quantity: number;
+
+  @IsNumber({}, { message: "price must be a number" })
+  @Min(1, { message: "price must be greater than 0" })
+  price: number;
 }
