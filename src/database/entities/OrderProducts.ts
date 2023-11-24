@@ -34,6 +34,15 @@ export class OrderProducts {
   @Column({ nullable: false, default: 0 })
   price: number;
 
+  @Column({ nullable: true, default: null })
+  isReady: boolean;
+
+  @Column({ length: 255, nullable: true, default: null })
+  status: string;
+
+  @Column({ length: 255, nullable: true })
+  description: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

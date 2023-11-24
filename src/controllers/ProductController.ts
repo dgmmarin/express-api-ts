@@ -29,6 +29,7 @@ export default class ProductController {
     const product = new Product();
     product.name = createProductDto.name;
     product.description = createProductDto.description;
+    product.price = createProductDto.price;
     return await AppDataSource.manager.save(product);
   };
 
@@ -48,6 +49,7 @@ export default class ProductController {
       id: productId,
     });
     product.name = updateProductDto.name ?? product.name;
+    product.price = updateProductDto.price ?? product.price;
     product.description = updateProductDto.description ?? product.description;
     return await productRepository.save(product);
   };

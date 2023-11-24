@@ -1,12 +1,4 @@
-import { Exclude } from "class-transformer";
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Length,
-  MinLength,
-} from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, Length, MinLength } from "class-validator";
 
 export class CreateUserDto {
   @IsString({ message: "firstName must be a string" })
@@ -32,26 +24,6 @@ export class CreateUserDto {
     message: "password must be between 6 and 10 characters long",
   })
   @IsNotEmpty({ message: "password is required" })
-  @Exclude()
   password: string;
 }
 
-export class UpdateUserDto {
-  @IsOptional()
-  @IsString({ message: "firstName must be a string" })
-  @Length(3, 20, {
-    message: "firstName must be between 3 and 20 characters long",
-  })
-  firstName: string;
-
-  @IsOptional()
-  @IsString({ message: "lastName must be a string" })
-  @Length(3, 20, {
-    message: "lastName must be between 3 and 20 characters long",
-  })
-  lastName: string;
-
-  @IsOptional()
-  @IsEmail({}, { message: "email must be a valid email address" })
-  email: string;
-}

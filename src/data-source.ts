@@ -13,6 +13,6 @@ export const AppDataSource = new DataSource({
   logging: process.env.DB_LOGGING == "true" ? true : false,
   entities: [path.join(__dirname, "database/entities", "*.ts")],
   migrations: [path.join(__dirname, "database/migrations", "*.ts")],
-  subscribers: [],
+  subscribers: [path.join(__dirname, "database/subscribers", "*.ts")],
   migrationsTableName: "migrations",
 });

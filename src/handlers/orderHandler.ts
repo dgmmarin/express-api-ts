@@ -3,6 +3,8 @@ import { Request, Response } from "express";
 import { CustomRequest } from "../middlewares/auth";
 import { plainToClass } from "class-transformer";
 import SanitizedOrder from "../serializers/order";
+import SanitizedUser from "../serializers/user";
+import { OrderProductQuantityDto } from "../dto/product.dto";
 
 export default class OrderHandler {
   controller: OrderController;
@@ -14,6 +16,10 @@ export default class OrderHandler {
     this.updateOrder = this.updateOrder.bind(this);
     this.deleteOrder = this.deleteOrder.bind(this);
     this.addProductToOrder = this.addProductToOrder.bind(this);
+    this.increaseProductQuantity = this.increaseProductQuantity.bind(this);
+    this.decreaseProductQuantity = this.decreaseProductQuantity.bind(this);
+    this.resolveProductQuantity = this.resolveProductQuantity.bind(this);
+    this.removeProductFromOrder = this.removeProductFromOrder.bind(this);
   }
   async listOrders(req: Request, res: Response) {
     console.log("fetch orders");
@@ -41,7 +47,9 @@ export default class OrderHandler {
     try {
       const { orderId } = req.params;
       const order = await this.controller.getOrder(orderId);
-      res.json(plainToClass(SanitizedOrder, order, {}));
+      const _order = plainToClass(SanitizedOrder, order, {});
+      _order.user = plainToClass(SanitizedUser, order.user, {});
+      res.json(_order);
     } catch (error) {
       res.status(400).json({ message: error });
     }
@@ -68,6 +76,65 @@ export default class OrderHandler {
       const result = await this.controller.addProductToOrder(
         orderId,
         addProductToOrderDto,
+      );
+      res.json(result);
+    } catch (error) {
+      console.log(error)
+      res.status(400).json({ message: error });
+    }
+  }
+
+  async increaseProductQuantity(req: Request, res: Response) {
+    try {
+      const { orderId } = req.params;
+      const { productId, quantity } = (req as CustomRequest)['modifyOrderProductQuantity'] as OrderProductQuantityDto;
+      const result = await this.controller.increaseProductQuantity(
+        orderId,
+        productId,
+        quantity
+      );
+      res.json(result);
+    } catch (error) {
+      console.log(error)
+      res.status(400).json({ message: error });
+    }
+  }
+
+  async decreaseProductQuantity(req: Request, res: Response) {
+    try {
+      const { orderId } = req.params;
+      const { productId, quantity } = (req as CustomRequest)['modifyOrderProductQuantity'] as OrderProductQuantityDto;
+      const result = await this.controller.decreaseProductQuantity(
+        orderId,
+        productId,
+        quantity
+      );
+      res.json(result);
+    } catch (error) {
+      console.log(error)
+      res.status(400).json({ message: error });
+    }
+  }
+
+  async resolveProductQuantity(req: Request, res: Response) {
+    try {
+      const { orderId, productId } = req.params;
+      const result = await this.controller.resolveProductQuantity(
+        orderId,
+        productId,
+      );
+      res.json(result);
+    } catch (error) {
+      res.status(400).json({ message: error });
+    }
+  }
+
+  async removeProductFromOrder(req: Request, res: Response) {
+    try {
+      const { orderId, productId } = req.params;
+      const result = await this.controller.removeProductFromOrder(
+        orderId,
+        productId,
       );
       res.json(result);
     } catch (error) {

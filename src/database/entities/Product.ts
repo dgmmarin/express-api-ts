@@ -25,6 +25,9 @@ export default class Product {
   @Column({ length: 100, nullable: false })
   name: string;
 
+  @Column({ nullable: false, default: 0 })
+  price: number;
+
   @Column({ length: 255, nullable: false })
   description: string;
 
