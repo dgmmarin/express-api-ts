@@ -1,22 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Service } from "../../interfaces/service";
 import express from "express";
-import cors from "cors";
-import users from "../../routes/users";
-import auth from "../../routes/auth";
-import authenticateJWT from "../../middlewares/auth";
-import getRequestedUser from "../../middlewares/getUserOnRequest";
-import { Process } from "../../interfaces/process";
-import roles from "../../routes/roles";
-import permissions from "../../routes/permissions";
-import categories from "../../routes/categories";
-import products from "../../routes/products";
-import orders from "../../routes/orders";
-import pagniation from "../../middlewares/pagination";
-import { create } from "domain";
+import { Process } from "../../interfaces/process";// import paginate from 'express-paginate';
 import { createExpressServer } from "routing-controllers";
 import expressListRoutes from "express-list-routes";
 import bodyParser from "body-parser";
+import { CustomPagination } from "../../middlewares/CustomPagination";
+import { ContextMiddleware } from "../../middlewares/ContextMiddleware";
+import { CustomErrorHandler } from "../../middlewares/CustomErrorHandler";
+
 
 export default class Api implements Service {
   name: string;
@@ -29,7 +21,6 @@ export default class Api implements Service {
     this.init = this.init.bind(this);
     this.start = this.start.bind(this);
     this.stop = this.stop.bind(this);
-    this.registerRoutes = this.registerRoutes.bind(this);
   }
 
   get App(): ReturnType<typeof express> {
@@ -44,12 +35,6 @@ export default class Api implements Service {
       "preflightContinue": false,
       "optionsSuccessStatus": 204
     }
-    // this.app = express();
-    // this.app.use(express.json());
-    // this.app.use(express.urlencoded({ extended: true }));
-    // this.app.use(cors(corsOptions));
-    // this.app.use(pagniation);
-    // this.registerRoutes();
 
     // Routed controllers
     this.app = createExpressServer({
@@ -58,12 +43,16 @@ export default class Api implements Service {
       classTransformer: true,
       validation: true,
       defaultErrorHandler: false,
-      controllers: [__dirname + "/../../routed-components/**/*.controller.ts"],
-      interceptors: [__dirname + "/../../middlewares/CustomErrorHandler.ts"],
+      middlewares: [
+        bodyParser.json(),
+        bodyParser.urlencoded({ extended: true }),
+        ContextMiddleware,
+        CustomErrorHandler,
+        CustomPagination,
+      ],
+      controllers: [__dirname + "/../../controllers/**/*.controller.ts"],
+      interceptors: [__dirname + "/../../interceptors/**/*.ts"],
     });
-    this.app.use(bodyParser.json());
-    this.app.use(bodyParser.urlencoded({ extended: true }));
-
     console.log(`Initializing ${this.name} service`);
   }
 
@@ -89,18 +78,4 @@ export default class Api implements Service {
     throw new Error("Method not implemented.");
   }
 
-  registerRoutes(): void {
-    this.app.use("/auth", auth);
-    this.app.use("/users", authenticateJWT, getRequestedUser, users);
-    this.app.use("/roles", authenticateJWT, getRequestedUser, roles);
-    this.app.use(
-      "/permissions",
-      authenticateJWT,
-      getRequestedUser,
-      permissions,
-    );
-    this.app.use("/categories", authenticateJWT, getRequestedUser, categories);
-    this.app.use("/products", authenticateJWT, getRequestedUser, products);
-    this.app.use("/orders", authenticateJWT, getRequestedUser, orders);
-  }
 }

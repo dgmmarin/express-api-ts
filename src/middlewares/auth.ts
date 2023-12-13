@@ -1,7 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Request, Response, NextFunction } from "express";
-import jwt, { JwtPayload, Secret } from "jsonwebtoken";
-import { User } from "../database/entities/User";
+import { Request } from "express";
+import { JwtPayload, } from "jsonwebtoken";
+import { ExpressMiddlewareInterface, Middleware } from "routing-controllers";
+import { User } from "../controllers/users/entity/user.entity";
+
 
 export interface CustomRequest extends Request {
   token: string | JwtPayload;
@@ -13,43 +15,12 @@ export interface CustomRequest extends Request {
   [x: string]: any;
 }
 
-const authenticateJWT = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers.authorization;
-  const SECRET_KEY: Secret = process.env.NODE_JWT_SECRET ?? "";
-  if (SECRET_KEY === "") {
-    throw new Error("Secret key not found");
+@Middleware({ type: 'before', priority: 100 })
+export class IsPublic implements ExpressMiddlewareInterface {
+  use(request: any, response: any, next: (err?: any) => any): any {
+    console.log("IsPublic");
+    request.headers["public"] = "true";
+    next();
   }
+}
 
-  try {
-    if (req.headers["public"] && req.headers["public"] === "true") {
-      next();
-      return;
-    }
-    if (authHeader) {
-      const token = req.header("Authorization")?.replace("Bearer ", "");
-      if (!token) {
-        return res.sendStatus(403);
-      }
-
-      const decoded = jwt.verify(token, SECRET_KEY);
-      (req as CustomRequest).token = decoded;
-      (req as CustomRequest).email = (decoded as JwtPayload).email;
-      (req as CustomRequest).exp = (decoded as JwtPayload).exp as number;
-      (req as CustomRequest).iat = (decoded as JwtPayload).iat as number;
-      (req as CustomRequest).roles = (decoded as JwtPayload).roles as string[];
-      next();
-    } else {
-      res.sendStatus(401);
-    }
-  } catch (err) {
-    res.status(401).send("Please authenticate");
-  }
-};
-
-const isPublic = (req: Request, res: Response, next: NextFunction) => {
-  req.headers["public"] = "true";
-  next();
-};
-
-export default authenticateJWT;
-export { isPublic };

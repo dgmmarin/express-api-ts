@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Process } from "../../interfaces/process";
-import { Service } from "../../interfaces/service";
+import { Service as CustomService } from "../../interfaces/service";
 import Api from "./api";
 import { createBullBoard } from "@bull-board/api";
 import { BullMQAdapter } from "@bull-board/api/bullMQAdapter";
@@ -13,8 +13,10 @@ import {
   EmailsQueue,
   OrdersQueue,
 } from "../../interfaces/generic";
+import { Service } from "typedi";
 
-export default class QueueWorker implements Service {
+@Service()
+export default class QueueWorker implements CustomService {
   name: string;
   parent: Process;
   redisOptions: object;
@@ -48,6 +50,7 @@ export default class QueueWorker implements Service {
   }
 
   createQueues = (): void => {
+    console.log(`Creating queues`);
     const serverAdapter = this.serverAdapter;
     this.defaultQueue = this.createQueueMQ(DefaultQueue);
     this.ordersQueue = this.createQueueMQ(OrdersQueue);

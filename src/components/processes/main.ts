@@ -1,12 +1,14 @@
+import { Service } from "typedi";
 import { Process, Services } from "../../interfaces/process";
-import { Service } from "../../interfaces/service";
+import { Service as CustomService } from "../../interfaces/service";
 import Api from "../services/api";
 import Database from "../services/database";
 import QueueWorker from "../services/queue";
 
+@Service()
 export default class Main implements Process {
   name: string;
-  services: { [key: string]: Service };
+  services: { [key: string]: CustomService };
   constructor() {
     this.name = "Main";
     this.services = <Services>{};
@@ -41,5 +43,9 @@ export default class Main implements Process {
     this.services["database"] = new Database(this);
     this.services["api"] = new Api(this);
     this.services["queue"] = new QueueWorker(this);
+  }
+
+  getService(name: string): CustomService {
+    return this.services[name];
   }
 }

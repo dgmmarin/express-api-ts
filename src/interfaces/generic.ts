@@ -13,4 +13,8 @@ export type Pagination = {
 export type PaginationResponse<T> = {
   data: T[];
   meta: Pagination;
-};  
+};
+
+export interface ExecutionContext {
+  currentRequest: any; // Replace 'any' with the actual type of 'currentRequest'
+}

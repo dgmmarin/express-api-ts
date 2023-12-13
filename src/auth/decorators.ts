@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
 import { CustomRequest } from "../middlewares/auth";
+import { Action, ExpressMiddlewareInterface, Middleware, getMetadataArgsStorage } from "routing-controllers";
 
 export function Body() {
   return function (
@@ -83,70 +84,25 @@ export function Roles(roles: string[]) {
   };
 }
 
-export function HasRole(role: string) {
-  return function (
-    target: unknown,
-    propertyKey: string,
-    descriptor: PropertyDescriptor,
-  ) {
-    const value = descriptor.value;
-    descriptor.value = function (
-      req: Request,
-      res: Response,
-      next: NextFunction,
-    ) {
-      const _roles = (req as CustomRequest).roles;
+
+export function HasRoles(roles: string[]) {
+  @Middleware({ type: "before" })
+  class HasRolesInterceptor implements ExpressMiddlewareInterface {
+    constructor(private roles: string[]) { }
+    use(req: any, res: any, next: any): any {
+      const _roles = req.roles;
+      console.log(_roles);
       let hasRole = false;
-      if (_roles && _roles.length && _roles.map((r) => r === role)) {
+      if (_roles && _roles.length && _roles.some((r: any) => roles.includes(r))) {
         hasRole = true;
       }
-
       if (!hasRole) {
-        return res.status(403).json({
-          message: `Unauthorized action. The role required for this action is => ${role}`,
-        });
+        return res.status(403).json({ message: "Unauthorized action" });
       } else {
-        const out = value.apply(this, [req, res, next]);
-        return out;
+        next();
       }
-    };
-  };
-}
+    }
+  }
+  return new HasRolesInterceptor(roles);
 
-export const log = (
-  target: any | undefined,
-  propertyKey: string,
-  descriptor: PropertyDescriptor,
-): any => {
-  // Capture the functional behavior of the decorated method
-  const originalMethod = descriptor.value;
-  // Override the decorated method's behavior with new behavior
-  descriptor.value = function (...args: any[]) {
-    let msg: string;
-    // The decorated method's parameters will be passed in as args.
-    // We'll assume the decorated method might only have a single parameter,
-    // check to see if it's been passed in the method
-    if (args[0]) {
-      msg = `${propertyKey}, that has a parameter value: ${args[0]}`;
-    } else {
-      msg = `${propertyKey}`;
-    }
-    // Emit a message to the console
-    console.log(`Logger says - calling the method: ${msg}`);
-    // Execute the behavior originally programmed in
-    // the decorated method
-    const result = originalMethod.apply(this, args);
-    // if the decorated method returned a value when executed,
-    // capture that result
-    if (result) {
-      msg = `${propertyKey} and returned: ${JSON.stringify(result)}`;
-    } else {
-      msg = `${propertyKey}`;
-    }
-    // Having executed the decorated method's behavior, emit
-    // a message to the console report what happened
-    console.log(`Logger says - called the method: ${msg}`);
-    return result;
-  };
-  return descriptor;
-};
+}

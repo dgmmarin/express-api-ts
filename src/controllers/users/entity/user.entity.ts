@@ -10,9 +10,9 @@ import {
   BeforeInsert,
   OneToMany,
 } from "typeorm";
-import { Role } from "./Role";
+import { Role } from "../../roles/entity/role.entity";
 import { v4 } from "uuid";
-import { Order } from "./Order";
+import { Order } from "../../orders/entity/order.entity";
 
 @Entity("users")
 export class User {
